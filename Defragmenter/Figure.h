@@ -11,9 +11,5 @@ class Figure {
 
 public:
 	FigureType type;
-
-	virtual void Paint(HDC hdc) {}
-	virtual void ClickDown(int x1, int y1, int x2, int y2) {}
-	virtual void MouseMove(int x1, int y1) {}
-	virtual void ClickUp(int x1, int y1, std::vector<Figure*>& FigureVector) {}
+	"Huinya vash pull request"
 };
