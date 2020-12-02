@@ -11,5 +11,5 @@ class Figure {
 
 public:
 	FigureType type;
-	"Huinya vash pull request"
+	"Prochenija prosim"
 };
