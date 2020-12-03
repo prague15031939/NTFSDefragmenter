@@ -1,9 +1,10 @@
 #include "pch.h"
 #include "Core.h"
 #include <string>
+#include <sstream>
 #include <cwchar>
 
-wchar_t* GetWC(char* c);
+DriveData* initDriveData(char *s);
 
 std::vector<DriveData*> __cdecl getDrives() 
 {
@@ -27,17 +28,15 @@ std::vector<DriveData*> __cdecl getDrives()
 
     for (char* s = buf; *s; s += strlen(s) + 1)
     {
-        DriveData* item = new DriveData();
-
-        wcsncpy_s(item->Drive, GetWC(s), 4);
+        DriveData* item = initDriveData(s);
         wcsncpy_s(item->DriveType, DT[GetDriveTypeA(s)], 20);
 
         if (GetDiskFreeSpaceA(s, &lSectorsPerCluster, &lBytesPerSector, &lNumberOfFreeClusters, &lTotalNumberOfClusters))
         {
-            std::to_wstring(lSectorsPerCluster).copy(item->SectorPerCluster, 5, 0);
-            std::to_wstring(lBytesPerSector).copy(item->BytesPerSector, 5, 0);
-            std::to_wstring((double)lNumberOfFreeClusters / 1024 * (double)lSectorsPerCluster / 1024 * (double)lBytesPerSector / 1024).copy(item->FreeSpace, 5, 0);
-            std::to_wstring((double)lTotalNumberOfClusters / 1024 * (double)lSectorsPerCluster / 1024 * (double)lBytesPerSector / 1024).copy(item->FullSpace, 5, 0);
+            std::to_wstring(lSectorsPerCluster).copy(item->SectorPerCluster, 20, 0);
+            std::to_wstring(lBytesPerSector).copy(item->BytesPerSector, 20, 0);
+            std::to_wstring((double)lNumberOfFreeClusters / 1024 * (double)lSectorsPerCluster / 1024 * (double)lBytesPerSector / 1024).copy(item->FreeSpace, 7, 0);
+            std::to_wstring((double)lTotalNumberOfClusters / 1024 * (double)lSectorsPerCluster / 1024 * (double)lBytesPerSector / 1024).copy(item->FullSpace, 7, 0);
         }
         DriveList.push_back(item);
     }
@@ -48,12 +47,13 @@ std::vector<DriveData*> __cdecl getDrives()
     return DriveList;
 }
 
-wchar_t* GetWC(char* c)
+DriveData* initDriveData(char* s)
 {
-    const size_t cSize = strlen(c) + 1;
-    wchar_t wc[10];
-    size_t s;
-    mbstowcs_s(&s, wc, c, cSize);
+    DriveData* dd = new DriveData();
+    std::wostringstream wss;
+    wss << s;
+    wss.str().copy(dd->Drive, 30, 0);
+    wss.str(std::wstring());
 
-    return wc;
+    return dd;
 }
