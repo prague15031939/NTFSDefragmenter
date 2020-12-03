@@ -1,4 +1,4 @@
-#include "GUI.h"
+#include "Defragmenter.h"
 
 LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {

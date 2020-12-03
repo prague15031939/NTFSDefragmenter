@@ -1,5 +1,4 @@
-#include "GUI.h"
-#include "DriveOperation.h"
+#include "Defragmenter.h"
 
 const wchar_t* headers[] = {
         { L"Drive: " },
@@ -24,7 +23,7 @@ LRESULT CALLBACK WNDProc_Info(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
     LOGFONT lf;
 
     switch (message) {
-    case WM_CREATE:
+    case WM_CREATE: {
         WndMainInfo = true;
         GetObject(GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf);
         hFont = CreateFont(15, lf.lfWidth,
@@ -33,16 +32,20 @@ LRESULT CALLBACK WNDProc_Info(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
             lf.lfOutPrecision, lf.lfClipPrecision, lf.lfQuality,
             lf.lfPitchAndFamily, lf.lfFaceName);
 
+        char c = 'd';
+        DriveInfo* driveInfo = getDriveInfo(c);
+        std::vector<DriveData*> drives = getDrives();
         for (int i = 0; i < 15; i++) {
-            HWND hLabel = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 20, 10+i*30, 400, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
-            HWND hText = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 350, 10 + i *30, 100, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
+            HWND hLabel = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 20, 10 + i * 30, 400, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
+            HWND hText = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 350, 10 + i * 30, 100, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
             SendMessage(hLabel, WM_SETFONT, (WPARAM)hFont, TRUE);
             wcsncpy_s(driveInfo->Drive, L"Hui", 10);
             wcsncpy_s(driveInfo->BytesPerFileRecordSegment, L"Hui", 10);
             SetWindowText(hLabel, headers[i]);
-            SetWindowText(hText, (LPCWSTR)((size_t)driveInfo+i*sizeof(wchar_t)*10));
+            SetWindowText(hText, (LPCWSTR)((size_t)driveInfo + i * sizeof(wchar_t) * 10));
         }
         break;
+    }
     case WM_DESTROY:
         WndMainInfo = false;
         break;

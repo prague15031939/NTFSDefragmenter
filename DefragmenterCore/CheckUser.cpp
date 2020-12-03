@@ -1,6 +1,7 @@
-#include "CheckUser.h"
+#include "pch.h"
+#include <windows.h>
 
-BOOL IsUserAdmin()
+BOOL __cdecl isUserAdmin()
 {
 	BOOL flag;
 	SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
@@ -31,14 +32,4 @@ BOOL IsUserAdmin()
 	}
 
 	return flag;
-}
-
-void AdminErrorOutput()
-{
-	cout << "Sorry,but you not an administrator!!!" << endl;
-	cout << "Press any key to complete work...";
-
-	_getch();
-
-	system("CLS");
 }

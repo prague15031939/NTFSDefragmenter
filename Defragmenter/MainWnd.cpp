@@ -1,4 +1,4 @@
-﻿#include "GUI.h"
+﻿#include "Defragmenter.h"
 
 HFONT hFont;
 LOGFONT lf;
@@ -15,7 +15,7 @@ LRESULT CALLBACK WNDProc_Main(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
             lf.lfOutPrecision, lf.lfClipPrecision, lf.lfQuality,
             lf.lfPitchAndFamily, lf.lfFaceName);
         SendMessage(hLabel, WM_SETFONT, (WPARAM)hFont, TRUE);
-        SetWindowText(hLabel, L"Welcome to defragmentator");
+        SetWindowText(hLabel, L"Welcome to defragmenter");
         HWND hBtn = CreateWindow(L"BUTTON", L"START", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 50, 220, 150, 50, hwnd, (HMENU)IDC_STARTBTN, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
         SendMessage(hBtn, WM_SETFONT, (WPARAM)hFont, TRUE);
         }

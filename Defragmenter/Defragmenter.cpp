@@ -1,13 +1,13 @@
-#include "GUI.h"
+﻿#include "Defragmenter.h"
 
-bool WndMainOpen, WndMainTable, WndMainInfo, WndMainDefrag=false;
-bool isRegMainWnd, isRegTableWnd, isRegInfoWnd, isRegDefragWnd=false;
+bool WndMainOpen, WndMainTable, WndMainInfo, WndMainDefrag = false;
+bool isRegMainWnd, isRegTableWnd, isRegInfoWnd, isRegDefragWnd = false;
 int nShow = 0;
 HINSTANCE hInstance = NULL;
 HWND hwndTable = NULL;
-HWND hwndInfo=NULL;
-HWND hwndDefrag=NULL;
-HWND hWndMain=NULL;
+HWND hwndInfo = NULL;
+HWND hwndDefrag = NULL;
+HWND hWndMain = NULL;
 
 WNDCLASSEX WndClassMain = {};
 WNDCLASSEX WndClassTable = {};
@@ -16,11 +16,10 @@ WNDCLASSEX WndClassDefrag = {};
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShowCmd)
 {
-    
     bool endprogram = false;
     nShow = nShowCmd;
     hInstance = hInst;
-    RegisterWindowClass(WndClassMain, hWndMain, hInst, nShowCmd, L"WCMain", L"Spizzennyi Defragmentator", isRegMainWnd, (WNDPROC)WNDProc_Main, 300, 300, 300, 400);
+    RegisterWindowClass(WndClassMain, hWndMain, hInst, nShowCmd, L"WCMain", L"defragmenter", isRegMainWnd, (WNDPROC)WNDProc_Main, 300, 300, 300, 400);
 
     MSG msg;
     bool endloop = false;
@@ -34,13 +33,13 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nS
             endloop = true;
     }
     MessageBox(NULL,
-        L"All Windows are closed.  Program will now close.",
+        L"All Windows are closed. Program will now close.",
         L"Message",
         MB_ICONINFORMATION);
 }
 
 
-void RegisterWindowClass(WNDCLASSEX& wc, HWND& hwnd, HINSTANCE hInst, int nShowCmd, LPCWSTR className, LPCWSTR windowTitle, bool &isReg, WNDPROC wndProc, int x, int y, int w, int h) {
+void RegisterWindowClass(WNDCLASSEX& wc, HWND& hwnd, HINSTANCE hInst, int nShowCmd, LPCWSTR className, LPCWSTR windowTitle, bool& isReg, WNDPROC wndProc, int x, int y, int w, int h) {
     if (isReg == false) {
         ZeroMemory(&wc, sizeof(WNDCLASSEX));
         wc.cbClsExtra = NULL;
@@ -48,12 +47,12 @@ void RegisterWindowClass(WNDCLASSEX& wc, HWND& hwnd, HINSTANCE hInst, int nShowC
         wc.cbWndExtra = NULL;
         wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
         wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-        wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_DEFRAGMENTATOR));
+        wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_DEFRAGMENTER));
         wc.hIconSm = LoadIcon(hInst, MAKEINTRESOURCE(IDI_SMALL));
         wc.hInstance = hInst;
         wc.lpfnWndProc = wndProc;
         wc.lpszClassName = className;
-        wc.lpszMenuName = MAKEINTRESOURCEW(IDC_DEFRAGMENTATOR_MAIN);
+        wc.lpszMenuName = MAKEINTRESOURCEW(IDC_DEFRAGMENTER);
         wc.style = CS_HREDRAW | CS_VREDRAW;
 
         if (!RegisterClassEx(&wc))
@@ -61,7 +60,7 @@ void RegisterWindowClass(WNDCLASSEX& wc, HWND& hwnd, HINSTANCE hInst, int nShowC
             int nResult = GetLastError();
             MessageBox(NULL,
                 L"Window class creation failed",
-                L"Window Class Failed",
+                L"Window Class failed",
                 MB_ICONERROR);
         }
         else
@@ -84,7 +83,7 @@ void RegisterWindowClass(WNDCLASSEX& wc, HWND& hwnd, HINSTANCE hInst, int nShowC
 
         MessageBox(NULL,
             L"Window creation failed",
-            L"Window Creation Failed",
+            L"Window creation failed",
             MB_ICONERROR);
     }
 

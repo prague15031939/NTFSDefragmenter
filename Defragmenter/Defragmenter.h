@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "resource.h"
 #include "framework.h"
+#include "../DefragmenterCore/Core.h"
 
 LRESULT CALLBACK WNDProc_Main(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WNDProc_Table(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -23,4 +24,4 @@ extern WNDCLASSEX WndClassTable;
 extern WNDCLASSEX WndClassInfo;
 extern WNDCLASSEX WndClassDefrag;
 
-void RegisterWindowClass(WNDCLASSEX& wc, HWND& hwnd, HINSTANCE hInst, int nShowCmd, LPCWSTR className, LPCWSTR windowTitle, bool &isReg, WNDPROC wndProc, int x, int y, int w, int h);
+void RegisterWindowClass(WNDCLASSEX& wc, HWND& hwnd, HINSTANCE hInst, int nShowCmd, LPCWSTR className, LPCWSTR windowTitle, bool& isReg, WNDPROC wndProc, int x, int y, int w, int h);
