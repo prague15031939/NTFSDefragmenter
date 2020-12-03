@@ -1,6 +1,8 @@
 #include "DriveOperation.h"
 #include "Operators.h"
 
+DriveInfo* driveInfo = new DriveInfo();
+
 void selectDrive(char& drive)
 {
     cout << "\nYour choise: ";
@@ -51,7 +53,6 @@ void getDriveInfo(char& drive)
 void outputDriveInfo(PNTFS_VOLUME_DATA_BUFFER info, char& drive)
 {
     system("CLS");
-
     cout << "Drive " << drive << ":\\" << endl << endl;
     cout << "1. Volume Serial Number: " << info->VolumeSerialNumber << endl;
     cout << "2. Number of sectors: " << info->NumberSectors << endl;
@@ -65,7 +66,7 @@ void outputDriveInfo(PNTFS_VOLUME_DATA_BUFFER info, char& drive)
     cout << "10. Length of master file table: " << info->MftValidDataLength << "bytes" << endl;
     cout << "11. The starting logical cluster number of the master file table: "<< info->MftStartLcn << endl;
     cout << "12. The starting logical cluster number of the master file table mirror: " << info->Mft2StartLcn << endl;
-    cout << "13. The starting logical cluster number of the master file table zone: " << info->MftZoneEnd << endl;
+    cout << "13. The starting logical cluster number of the master file table zone: " << info->MftZoneStart << endl;
     cout << "14. The ending logical cluster number of the master file table zone: " << info->MftZoneEnd << endl;
     
     cout << "\nPress any key..." << endl;
