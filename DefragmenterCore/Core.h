@@ -1,6 +1,8 @@
 #pragma once
 #include <windows.h>
 #include <vector>
+#include <queue>
+#include <atlstr.h>
 
 #ifdef DEFRAGMENTERCORE_EXPORTS
 #define DEFRAGMENTERCORE_API __declspec(dllexport)
@@ -48,3 +50,15 @@ DEFRAGMENTERCORE_API DriveInfo* __cdecl getDriveInfo(char& drive);
 // -------------------------------- admin section --------------------------------
 
 DEFRAGMENTERCORE_API BOOL __cdecl isUserAdmin();
+
+// -------------------------------- defrager section -----------------------------
+
+struct DefragmentationLogItem
+{
+	wchar_t* result;
+	wchar_t* fullName;
+};
+
+DEFRAGMENTERCORE_API int __cdecl WorkIn(CString directory, CString dr, bool first = false);
+
+DEFRAGMENTERCORE_API std::vector<DefragmentationLogItem*> __cdecl getDefragmentationLogs();
