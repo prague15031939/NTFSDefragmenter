@@ -48,4 +48,3 @@ DEFRAGMENTERCORE_API DriveInfo* __cdecl getDriveInfo(char& drive);
 // -------------------------------- admin section --------------------------------
 
 DEFRAGMENTERCORE_API BOOL __cdecl isUserAdmin();
-

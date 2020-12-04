@@ -1,18 +1,22 @@
 ﻿#include "Defragmenter.h"
 
-bool WndMainOpen, WndMainTable, WndMainInfo, WndMainDefrag = false;
-bool isRegMainWnd, isRegTableWnd, isRegInfoWnd, isRegDefragWnd = false;
+bool WndMainOpen, WndMainTable, WndMainInfo, WndMainDefrag, WndMainSelected = false;
+bool isRegMainWnd, isRegTableWnd, isRegInfoWnd, isRegDefragWnd, isRegSelectedWnd = false;
 int nShow = 0;
 HINSTANCE hInstance = NULL;
 HWND hwndTable = NULL;
 HWND hwndInfo = NULL;
 HWND hwndDefrag = NULL;
 HWND hWndMain = NULL;
+HWND hwndSelected = NULL;
+
+DriveData* currDrive = {};
 
 WNDCLASSEX WndClassMain = {};
 WNDCLASSEX WndClassTable = {};
 WNDCLASSEX WndClassInfo = {};
 WNDCLASSEX WndClassDefrag = {};
+WNDCLASSEX WndClassSelected = {};
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShowCmd)
 {
@@ -32,10 +36,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nS
         if (WndMainOpen == false && WndMainTable == false && WndMainInfo == false && WndMainDefrag == false)
             endloop = true;
     }
-    MessageBox(NULL,
-        L"All Windows are closed. Program will now close.",
-        L"Message",
-        MB_ICONINFORMATION);
 }
 
 

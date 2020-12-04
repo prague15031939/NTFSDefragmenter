@@ -4,9 +4,9 @@
 #include <sstream>
 #include <cwchar>
 
-DriveData* initDriveData(char *s);
+DriveData* initDriveData(char* s);
 
-std::vector<DriveData*> __cdecl getDrives() 
+std::vector<DriveData*> __cdecl getDrives()
 {
     std::vector<DriveData*> DriveList;
 
@@ -17,14 +17,14 @@ std::vector<DriveData*> __cdecl getDrives()
     GetLogicalDriveStringsA(sizeof(buf), buf);
 
     wchar_t* DT[] = {
-        new wchar_t[8]  {L"Unknown"} ,             // тип диска не может быть определен
-        new wchar_t[13] {L"Invalid path"},         // корневой путь является недопустимым
-        new wchar_t[10] {L"Removable" },           // съемные носители(флешки)
-        new wchar_t[6]  {L"Fixed"},                // фиксированные носители(жесткий диск)
-        new wchar_t[14] {L"Network drive"},        // привод является удаленным(сетевым)
-        new wchar_t[7]  {L"CD-ROM"},               // CD-ROM привод
-        new wchar_t[9]  {L"RAM disk"}              // ОЗУ-диск
-    };            
+        new wchar_t[8]  {L"Unknown"} ,            
+        new wchar_t[13] {L"Invalid path"},        
+        new wchar_t[10] {L"Removable" },      
+        new wchar_t[6]  {L"Fixed"},               
+        new wchar_t[14] {L"Network drive"},      
+        new wchar_t[7]  {L"CD-ROM"},          
+        new wchar_t[9]  {L"RAM disk"}       
+    };
 
     for (char* s = buf; *s; s += strlen(s) + 1)
     {

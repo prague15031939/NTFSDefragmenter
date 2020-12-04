@@ -112,5 +112,3 @@ DriveInfo* formDriveInfo(PNTFS_VOLUME_DATA_BUFFER info, char& drive)
 
     return item;
 }
-
-

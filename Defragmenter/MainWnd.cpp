@@ -39,7 +39,7 @@ LRESULT CALLBACK WNDProc_Main(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
         switch LOWORD(wParam) {
         case (int)IDC_STARTBTN:
             DestroyWindow(hWndMain);
-            RegisterWindowClass(WndClassTable, hwndTable, hInstance, nShow, L"WCTable", L"Available drives", isRegTableWnd, (WNDPROC)WNDProc_Table, 200,210,700,500);
+            RegisterWindowClass(WndClassTable, hwndTable, hInstance, nShow, L"WCTable", L"Available drives", isRegTableWnd, (WNDPROC)WNDProc_Table, 200,210,1000,500);
             break;
         }
     }

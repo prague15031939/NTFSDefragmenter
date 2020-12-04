@@ -149,6 +149,7 @@
     <ClCompile Include="DefragWnd.cpp" />
     <ClCompile Include="InfoWnd.cpp" />
     <ClCompile Include="MainWnd.cpp" />
+    <ClCompile Include="SelectedDriveWnd.cpp" />
     <ClCompile Include="TableWnd.cpp" />
   </ItemGroup>
   <ItemGroup>
