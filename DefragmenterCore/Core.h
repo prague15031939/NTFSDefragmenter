@@ -55,10 +55,12 @@ DEFRAGMENTERCORE_API BOOL __cdecl isUserAdmin();
 
 struct DefragmentationLogItem
 {
-	wchar_t* result;
-	wchar_t* fullName;
+	wchar_t result[2];
+	wchar_t fullName[4096];
 };
 
 DEFRAGMENTERCORE_API int __cdecl WorkIn(CString directory, CString dr, bool first = false);
 
 DEFRAGMENTERCORE_API std::vector<DefragmentationLogItem*> __cdecl getDefragmentationLogs();
+
+DEFRAGMENTERCORE_API std::vector<DefragmentationLogItem*> __cdecl getTestDefragmentationLogs();

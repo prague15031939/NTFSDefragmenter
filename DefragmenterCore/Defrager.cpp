@@ -409,12 +409,13 @@ std::vector<DefragmentationLogItem*> __cdecl getDefragmentationLogs()
 
 void createLog(const wchar_t* res, ATL::CString fullName)
 {
+    std::wostringstream wss;
     TryEnterCriticalSection(&criticalSection);
     DefragmentationLogItem* item = new DefragmentationLogItem();
+    ZeroMemory(item, sizeof(item));
 
-    std::wostringstream wss;
     wss << res;
-    wss.str().copy(item->result, 1, 0);
+    wss.str().copy(item->result, 5, 0);
     wss.str(std::wstring());
 
     wss << fullName;
@@ -423,4 +424,39 @@ void createLog(const wchar_t* res, ATL::CString fullName)
 
     DefragmentationLogs.push_back(item);
     LeaveCriticalSection(&criticalSection);
+}
+
+std::vector<DefragmentationLogItem*> __cdecl getTestDefragmentationLogs()
+{
+    const wchar_t* directories[10] = {
+        L"D:\\test1\\1.txt",
+        L"D:\\test1\\2.txt",
+        L"D:\\test1\\3.txt",
+        L"D:\\test2\\1.txt",
+        L"D:\\test2\\2.txt",
+        L"D:\\test2\\3.txt",
+        L"D:\\test3\\1.txt",
+        L"D:\\test3\\2.txt",
+        L"D:\\test3\\3.txt",
+        L"D:\\test3\\4.txt",
+    };
+
+    std::vector<DefragmentationLogItem*> testLog;
+    for (int i = 0; i < 10; i++) {
+        DefragmentationLogItem* item = new DefragmentationLogItem();
+        ZeroMemory(item, sizeof(item));
+
+        std::wostringstream wss;
+        wss << "=";
+        wss.str().copy(item->result, 5, 0);
+        wss.str(std::wstring());
+
+        wss << directories[i];
+        wss.str().copy(item->fullName, 200, 0);
+        wss.str(std::wstring());
+
+        testLog.push_back(item);
+    }
+
+    return testLog;
 }
