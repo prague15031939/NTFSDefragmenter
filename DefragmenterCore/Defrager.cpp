@@ -3,19 +3,35 @@
 #include "winioctl.h"
 #include <sstream>
 #include <string>
+#include <queue>
 
 CRITICAL_SECTION criticalSection;
 std::vector<DefragmentationLogItem*> DefragmentationLogs;
+std::queue<DefragmentationLogItem*> testLog;
 
 VOLUME_BITMAP_BUFFER* readVolumeBitmap(LPCWSTR drive);
 RETRIEVAL_POINTERS_BUFFER* readFileBitmap(std::wstring fileName);
 int Move(LPCWSTR lpSrcName, LPCWSTR drive);
 void createLog(const wchar_t* res, ATL::CString fullName);
+void createTestLog();
+
+const wchar_t* directories[10] = {
+            L"D:\\test1\\1.txt",
+            L"D:\\test1\\2.txt",
+            L"D:\\test1\\3.txt",
+            L"D:\\test2\\1.txt",
+            L"D:\\test2\\2.txt",
+            L"D:\\test2\\3.txt",
+            L"D:\\test3\\1.txt",
+            L"D:\\test3\\2.txt",
+            L"D:\\test3\\3.txt",
+            L"D:\\test3\\4.txt",
+};
 
 // обрабатываем файлы на диске
 int __cdecl WorkIn(CString directory, CString dr, bool first)
 {
-    InitializeCriticalSectionAndSpinCount(&criticalSection, 1000);
+    InitializeCriticalSectionAndSpinCount(&criticalSection, 5000);
 
     int res = 1;
     // если вызов для корневой директории, то добавить #:\ чтобы было C:\ 
@@ -400,16 +416,16 @@ int Move(LPCWSTR lpSrcName, LPCWSTR drive)
 std::vector<DefragmentationLogItem*> __cdecl getDefragmentationLogs() 
 {
     std::vector<DefragmentationLogItem*> result;
-    TryEnterCriticalSection(&criticalSection);
+    /*TryEnterCriticalSection(&criticalSection);
     result = DefragmentationLogs;
     DefragmentationLogs.clear();
-    LeaveCriticalSection(&criticalSection);
+    LeaveCriticalSection(&criticalSection);*/
     return result;
 }
 
 void createLog(const wchar_t* res, ATL::CString fullName)
 {
-    TryEnterCriticalSection(&criticalSection);
+    /*TryEnterCriticalSection(&criticalSection);
     DefragmentationLogItem* item = new DefragmentationLogItem();
 
     std::wostringstream wss;
@@ -422,5 +438,63 @@ void createLog(const wchar_t* res, ATL::CString fullName)
     wss.str(std::wstring());
 
     DefragmentationLogs.push_back(item);
-    LeaveCriticalSection(&criticalSection);
+    LeaveCriticalSection(&criticalSection);*/
+}
+
+
+std::queue<DefragmentationLogItem*> __cdecl getTestDefragmentationLogs()
+{
+    std::queue<DefragmentationLogItem*> testLog_ret;
+    if (TryEnterCriticalSection(&criticalSection)) {
+        int size = testLog.size();
+        for (int i = 0; i < size; i++) {
+            testLog_ret.push(testLog.front());
+            testLog.pop();
+        }
+        LeaveCriticalSection(&criticalSection);
+    }
+    return testLog_ret;
+   
+}
+
+DWORD WINAPI Defragmentation(LPVOID t) {
+    createTestLog();
+    return 0;
+}
+
+void createTestLog()
+{
+    for (int j = 0; j < 1000000000; j++) {
+        if (TryEnterCriticalSection(&criticalSection)) {
+
+            for (int i = 0; i < 10; i++) {
+                DefragmentationLogItem* item = new DefragmentationLogItem();
+                //ZeroMemory(item, sizeof(item));
+
+                std::wostringstream wss;
+                wss << "=";
+                wss.str().copy(item->result, 5, 0);
+                wss.str(std::wstring());
+
+                wss << directories[i];
+                wss.str().copy(item->fullName, 200, 0);
+                wss.str(std::wstring());
+
+                testLog.push(item);
+            }
+            LeaveCriticalSection(&criticalSection);
+        }
+        Sleep(500);
+        
+    }
+    int i = 10;
+         
+}
+
+void __cdecl InitCS() {
+    InitializeCriticalSection(&criticalSection);
+}
+
+void __cdecl DeleteCS() {
+    DeleteCriticalSection(&criticalSection);
 }

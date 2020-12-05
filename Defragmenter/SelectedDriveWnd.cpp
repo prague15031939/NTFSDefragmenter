@@ -59,7 +59,7 @@ LRESULT CALLBACK WNDProc_Selected(HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 break;
             }
             case (int)IDC_DEFRAGBTN: {
-                RegisterWindowClass(WndClassDefrag, hwndDefrag, hInstance, nShow, L"WCDefrag", L"Defragmentation process", isRegDefragWnd, (WNDPROC)WNDProc_Defrag, 200, 200, 600, 500);
+                RegisterWindowClass(WndClassDefrag, hwndDefrag, hInstance, nShow, L"WCDefrag", L"Defragmentation process", isRegDefragWnd, (WNDPROC)WNDProc_Defrag, 200, 200, 600, 650);
                 break;
             }
             }

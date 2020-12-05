@@ -17,6 +17,7 @@
 #define IDC_DEFRAGBTN (HMENU)       122
 #define IDC_STARTLBL (HMENU)        123
 #define IDC_LISTVIEW (HMENU)        124
+#define IDC_DEFRAGOUTPUT (HMENU)    125
 #endif
 
 
