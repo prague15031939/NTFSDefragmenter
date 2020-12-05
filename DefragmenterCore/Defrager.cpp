@@ -3,22 +3,38 @@
 #include "winioctl.h"
 #include <sstream>
 #include <string>
+#include <queue>
 
 CRITICAL_SECTION criticalSection;
 std::vector<DefragmentationLogItem*> DefragmentationLogs;
+std::queue<DefragmentationLogItem*> testLog;
 
 VOLUME_BITMAP_BUFFER* readVolumeBitmap(LPCWSTR drive);
 RETRIEVAL_POINTERS_BUFFER* readFileBitmap(std::wstring fileName);
 int Move(LPCWSTR lpSrcName, LPCWSTR drive);
 void createLog(const wchar_t* res, ATL::CString fullName);
+void createTestLog();
 
-// ???????????? ????? ?? ?????
+const wchar_t* directories[10] = {
+            L"D:\\test1\\1.txt",
+            L"D:\\test1\\2.txt",
+            L"D:\\test1\\3.txt",
+            L"D:\\test2\\1.txt",
+            L"D:\\test2\\2.txt",
+            L"D:\\test2\\3.txt",
+            L"D:\\test3\\1.txt",
+            L"D:\\test3\\2.txt",
+            L"D:\\test3\\3.txt",
+            L"D:\\test3\\4.txt",
+};
+
+// обрабатываем файлы на диске
 int __cdecl WorkIn(CString directory, CString dr, bool first)
 {
-    InitializeCriticalSectionAndSpinCount(&criticalSection, 1000);
+    InitializeCriticalSectionAndSpinCount(&criticalSection, 5000);
 
     int res = 1;
-    // ???? ????? ??? ???????? ??????????, ?? ???????? #:\ ????? ???? C:\ 
+    // если вызов для корневой директории, то добавить #:\ чтобы было C:\ 
     if (first) directory += ":\\";
 
     WIN32_FIND_DATA FindFileData;
@@ -31,30 +47,30 @@ int __cdecl WorkIn(CString directory, CString dr, bool first)
         do
         {
             CString tmp = FindFileData.cFileName;
-            // ???? ??? ???????? ????? . ??? .., ?? ??????????
+            // если нам попались папки . или .., то пропускаем
             if (tmp != "." && tmp != "..")
             {
                 CString full_file_name = directory + FindFileData.cFileName;
-                // ???? ???????? ?????, ?? ???????? ?????????? ??????? ??? ??? ??? ?????
+                // если попалась папка, то вызываем рекурсивно функцию еще раз для папки
                 if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
                 {
                     WorkIn(full_file_name + "\\", dr);
                 }
                 else
                 {
-                    // ???????? ???????????? ?????
+                    // получаем расположение файла
                     RETRIEVAL_POINTERS_BUFFER* fileBitmap = readFileBitmap(full_file_name.GetString());
                     if (fileBitmap != NULL)
                     {
-                        // ???? ???? ?? ?????? ?? ?????, ?? ??????? +
+                        // если файл не разбил на части, то выводим +
                         if (fileBitmap->ExtentCount == 1)
                         {
                             createLog(L"+", full_file_name);
                         }
                         else
                         {
-                            // ???? ??????, ?? ????????? ??? ??????????????
-                            // ???? ?????????????? ???????, ?? ??????? = ????? -
+                            // если разбит, то выполняем его дефрагментацию
+                            // если дефрагментация удалась, то выводим = иначе -
                             res = Move(full_file_name.GetString(), dr.GetString());
                             createLog((!res) ? L"=" : L"-", full_file_name);
                         }
@@ -73,7 +89,7 @@ int __cdecl WorkIn(CString directory, CString dr, bool first)
     return res;
 }
 
-// ??????? ?????? ??????? ????? ????? ? ????????? ?????????/??????? ?????????
+// функция чтения битовой карты диска с указанием свободных/занятых кластеров
 VOLUME_BITMAP_BUFFER* readVolumeBitmap(LPCWSTR drive)
 {
     HANDLE hDrive = 0;
@@ -84,7 +100,7 @@ VOLUME_BITMAP_BUFFER* readVolumeBitmap(LPCWSTR drive)
     VOLUME_BITMAP_BUFFER  Buffer;
     VOLUME_BITMAP_BUFFER* Result = &Buffer;
 
-    // ????????? ???? ??? ??????
+    // открываем диск для работы
     hDrive = CreateFile(drive, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, 0);
 
     if (hDrive == INVALID_HANDLE_VALUE)
@@ -96,7 +112,7 @@ VOLUME_BITMAP_BUFFER* readVolumeBitmap(LPCWSTR drive)
     nOutSize = sizeof(VOLUME_BITMAP_BUFFER);
     InBuf.StartingLcn.QuadPart = 0;
 
-    // ???????? ??????? ?????   
+    // получаем битовую карту   
     ret = DeviceIoControl(hDrive,
         FSCTL_GET_VOLUME_BITMAP,
         &InBuf,
@@ -106,12 +122,12 @@ VOLUME_BITMAP_BUFFER* readVolumeBitmap(LPCWSTR drive)
         &Bytes,
         NULL);
 
-    // ???? ????????? ?????? ??? ????????? ??????
+    // если произошла ошибка при получении данных
     if (!ret && GetLastError() == ERROR_MORE_DATA)
     {
-        // ???????? ???-?? ????????? ?? ???? (??????? ? StartingLcn)
+        // получаем кол-во кластеров на томе (начиная с StartingLcn)
         _int64 CountClusters = Result->BitmapSize.QuadPart - Result->StartingLcn.QuadPart;
-        // ?????????, ??????? ????? ???? ??? ????? (1 ??????? = 1 ???)
+        // вычисляем, сколько нужно байт под буфер (1 кластер = 1 бит)
         nOutSize = CountClusters / sizeof(char) + sizeof(VOLUME_BITMAP_BUFFER);
         Result = (PVOLUME_BITMAP_BUFFER)new char[nOutSize];
 
@@ -119,7 +135,7 @@ VOLUME_BITMAP_BUFFER* readVolumeBitmap(LPCWSTR drive)
             return NULL;
         Result->StartingLcn.QuadPart = 0;
 
-        // ???????? ??????? ?????
+        // получаем битовую маску
         ret = DeviceIoControl(hDrive,
             FSCTL_GET_VOLUME_BITMAP,
             &InBuf,
@@ -143,7 +159,7 @@ VOLUME_BITMAP_BUFFER* readVolumeBitmap(LPCWSTR drive)
     return 0;
 }
 
-// ??????? ????????? ??????? ?????????? ????? ?? ?????
+// функция получения таблицы размещения файла на диске
 RETRIEVAL_POINTERS_BUFFER* readFileBitmap(std::wstring fileName)
 {
     HANDLE hFile;
@@ -154,7 +170,7 @@ RETRIEVAL_POINTERS_BUFFER* readFileBitmap(std::wstring fileName)
     int ret;
     std::wstring bitmapFile;
 
-    // ???????????? ? ?????
+    // подключаемся к файлу
     hFile = CreateFile(fileName.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 
     if (hFile == INVALID_HANDLE_VALUE)
@@ -169,7 +185,7 @@ RETRIEVAL_POINTERS_BUFFER* readFileBitmap(std::wstring fileName)
     DWORD nOutBufferSize = 1024 * 2;
 
     while (TRUE) {
-        // ???????? ?????????? ????? ?? ????????? ?????
+        // получаем размещение файла на кластерах диска
         ret = DeviceIoControl(hFile,
             FSCTL_GET_RETRIEVAL_POINTERS,
             &startingVcn,
@@ -200,7 +216,7 @@ RETRIEVAL_POINTERS_BUFFER* readFileBitmap(std::wstring fileName)
     return fileBitmap;
 }
 
-// ??????? ??????????? ?????? ????? ?? ?????
+// функция перемещения частей файла на диске
 int Move(LPCWSTR lpSrcName, LPCWSTR drive)
 {
     int ret = 0;
@@ -228,7 +244,7 @@ int Move(LPCWSTR lpSrcName, LPCWSTR drive)
     if (pOutBuf != NULL)
     {
         res = 0;
-        // ???????????? ? ?????
+        // подключаемся к файлу
         hFile = CreateFile(lpSrcName,
             FILE_READ_ATTRIBUTES,
             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
@@ -240,7 +256,7 @@ int Move(LPCWSTR lpSrcName, LPCWSTR drive)
         Name[1] = ':';
         Name[2] = 0;
 
-        // ???????? ?????? ?????????? ????? ?? ?????
+        // получаем размер свободного места на диске
         if (GetDiskFreeSpace((LPWSTR)Name, &nSecPerCl, &nBtPerSec, NULL, NULL) == FALSE)
         {
             ret = GetLastError();
@@ -254,8 +270,8 @@ int Move(LPCWSTR lpSrcName, LPCWSTR drive)
             return ret;
         }
 
-        // ???????? ????? ?????? ??????? ?????????? ????? ?? ?????
-        // ? ??????? ???????? ?????
+        // получаем более точную таблицу размещения файла на диске
+        // и считаем кластеры файла
         nClusterSize = nSecPerCl * nBtPerSec;
         if (hFile != INVALID_HANDLE_VALUE)
         {
@@ -292,7 +308,7 @@ int Move(LPCWSTR lpSrcName, LPCWSTR drive)
         }
         CloseHandle(hFile);
 
-        // ???????????? ? ?????
+        // подключаемся к файлу
         hFile = CreateFile(lpSrcName,
             FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
             NULL,
@@ -300,7 +316,7 @@ int Move(LPCWSTR lpSrcName, LPCWSTR drive)
             FILE_FLAG_NO_BUFFERING,
             NULL);
 
-        // ???????????? ? ?????
+        // подключаемся к диску
         hDrive = CreateFile(drive,
             GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
             NULL, OPEN_EXISTING,
@@ -309,8 +325,8 @@ int Move(LPCWSTR lpSrcName, LPCWSTR drive)
 
         if (pClusters)
         {
-            // ??????????? ??????? ??????? ????? ? ???? ?????????? ????????????????? ?????????? ?????
-            // ??? ?????????? ?????
+            // анализируем битовую таблицу диска и ищем достаточно последовательного свободного места
+            // для размещения файла
             LONGLONG nStartLCN(0), nEmptyCluster(0), nHelpLCN(0), nMask(1), nInUse(0);
             for (__int64 i = 0; i < pOutBuf->BitmapSize.QuadPart; i++)
             {
@@ -346,7 +362,7 @@ int Move(LPCWSTR lpSrcName, LPCWSTR drive)
                 nMask = 1;
             }
 
-            // ?????????? ????? ?????
+            // перемечаем части файла
             PrevVCN.QuadPart = 0;
             InBuffer.FileHandle = hFile;
             InBuffer.StartingLcn.QuadPart = nStartLCN;
@@ -400,22 +416,21 @@ int Move(LPCWSTR lpSrcName, LPCWSTR drive)
 std::vector<DefragmentationLogItem*> __cdecl getDefragmentationLogs()
 {
     std::vector<DefragmentationLogItem*> result;
-    TryEnterCriticalSection(&criticalSection);
+    /*TryEnterCriticalSection(&criticalSection);
     result = DefragmentationLogs;
     DefragmentationLogs.clear();
-    LeaveCriticalSection(&criticalSection);
+    LeaveCriticalSection(&criticalSection);*/
     return result;
 }
 
 void createLog(const wchar_t* res, ATL::CString fullName)
 {
-    std::wostringstream wss;
-    TryEnterCriticalSection(&criticalSection);
+    /*TryEnterCriticalSection(&criticalSection);
     DefragmentationLogItem* item = new DefragmentationLogItem();
-    ZeroMemory(item, sizeof(item));
 
+    std::wostringstream wss;
     wss << res;
-    wss.str().copy(item->result, 5, 0);
+    wss.str().copy(item->result, 1, 0);
     wss.str(std::wstring());
 
     wss << fullName;
@@ -423,40 +438,63 @@ void createLog(const wchar_t* res, ATL::CString fullName)
     wss.str(std::wstring());
 
     DefragmentationLogs.push_back(item);
-    LeaveCriticalSection(&criticalSection);
+    LeaveCriticalSection(&criticalSection);*/
 }
 
-std::vector<DefragmentationLogItem*> __cdecl getTestDefragmentationLogs()
+
+std::queue<DefragmentationLogItem*> __cdecl getTestDefragmentationLogs()
 {
-    const wchar_t* directories[10] = {
-        L"D:\\test1\\1.txt",
-        L"D:\\test1\\2.txt",
-        L"D:\\test1\\3.txt",
-        L"D:\\test2\\1.txt",
-        L"D:\\test2\\2.txt",
-        L"D:\\test2\\3.txt",
-        L"D:\\test3\\1.txt",
-        L"D:\\test3\\2.txt",
-        L"D:\\test3\\3.txt",
-        L"D:\\test3\\4.txt",
-    };
-
-    std::vector<DefragmentationLogItem*> testLog;
-    for (int i = 0; i < 10; i++) {
-        DefragmentationLogItem* item = new DefragmentationLogItem();
-        ZeroMemory(item, sizeof(item));
-
-        std::wostringstream wss;
-        wss << "=";
-        wss.str().copy(item->result, 5, 0);
-        wss.str(std::wstring());
-
-        wss << directories[i];
-        wss.str().copy(item->fullName, 200, 0);
-        wss.str(std::wstring());
-
-        testLog.push_back(item);
+    std::queue<DefragmentationLogItem*> testLog_ret;
+    if (TryEnterCriticalSection(&criticalSection)) {
+        int size = testLog.size();
+        for (int i = 0; i < size; i++) {
+            testLog_ret.push(testLog.front());
+            testLog.pop();
+        }
+        LeaveCriticalSection(&criticalSection);
     }
+    return testLog_ret;
 
-    return testLog;
+}
+
+DWORD WINAPI Defragmentation(LPVOID t) {
+    createTestLog();
+    return 0;
+}
+
+void createTestLog()
+{
+    for (int j = 0; j < 1000000000; j++) {
+        if (TryEnterCriticalSection(&criticalSection)) {
+
+            for (int i = 0; i < 10; i++) {
+                DefragmentationLogItem* item = new DefragmentationLogItem();
+                //ZeroMemory(item, sizeof(item));
+
+                std::wostringstream wss;
+                wss << "=";
+                wss.str().copy(item->result, 5, 0);
+                wss.str(std::wstring());
+
+                wss << directories[i];
+                wss.str().copy(item->fullName, 200, 0);
+                wss.str(std::wstring());
+
+                testLog.push(item);
+            }
+            LeaveCriticalSection(&criticalSection);
+        }
+        Sleep(500);
+
+    }
+    int i = 10;
+
+}
+
+void __cdecl InitCS() {
+    InitializeCriticalSection(&criticalSection);
+}
+
+void __cdecl DeleteCS() {
+    DeleteCriticalSection(&criticalSection);
 }
