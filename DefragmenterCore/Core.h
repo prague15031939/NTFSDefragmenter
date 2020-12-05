@@ -56,17 +56,22 @@ DEFRAGMENTERCORE_API BOOL __cdecl isUserAdmin();
 struct DefragmentationLogItem
 {
 	wchar_t result[2];
-	wchar_t fullName[200];
+	wchar_t fullName[4096];
 };
 
-DEFRAGMENTERCORE_API int __cdecl WorkIn(CString directory, CString dr, bool first = false);
+struct StartDefragInfo {
+	CString directory;
+	CString drive;
+	bool first = false; // true for root directory (like c or d)
+};
 
-DEFRAGMENTERCORE_API std::vector<DefragmentationLogItem*> __cdecl getDefragmentationLogs();
+DEFRAGMENTERCORE_API DWORD WINAPI WorkIn(LPVOID t); // t must be of type StartDefragInfo
 
-DEFRAGMENTERCORE_API std::queue<DefragmentationLogItem*> __cdecl getTestDefragmentationLogs();
-
-DEFRAGMENTERCORE_API DWORD WINAPI Defragmentation(LPVOID t);
+DEFRAGMENTERCORE_API std::queue<DefragmentationLogItem*> __cdecl getDefragmentationLogs();
 
 DEFRAGMENTERCORE_API void __cdecl InitCS();
+
 DEFRAGMENTERCORE_API void __cdecl DeleteCS();
+
+DEFRAGMENTERCORE_API void __cdecl StopDefrager(HANDLE hDefragThread);
 

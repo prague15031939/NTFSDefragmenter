@@ -2,17 +2,20 @@
 
 HWND hEdit;
 HWND hBtn;
+HANDLE hDefragThread;
 void AppendTextToEditCtrl(HWND hWndEdit, LPCTSTR pszText);
+StartDefragInfo* GetStartDefragInfo(char drive = 'E');
 
 LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     case WM_CREATE: {
         InitCS();
-        HANDLE thread = CreateThread(NULL, 0, Defragmentation, NULL, 0, NULL);
+        hDefragThread = CreateThread(NULL, 0, WorkIn, GetStartDefragInfo(/* pass a drive letter here */), 0, NULL);
+
         SetTimer(hwnd, 1, 40, NULL);
-        hEdit = CreateWindowEx(0, L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, 10, 20, 500, 400, hwnd, (HMENU)IDC_DEFRAGOUTPUT, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), NULL);
+        hEdit = CreateWindowEx(0, L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, 10, 20, 600, 400, hwnd, (HMENU)IDC_DEFRAGOUTPUT, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), NULL);
         SendMessage(hEdit, WM_SETTEXT, 0, (LPARAM)L"");
-        hBtn = CreateWindow(L"BUTTON", L"START", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 200, 450, 150, 50, hwnd, (HMENU)IDC_STARTBTN, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
+        hBtn = CreateWindow(L"BUTTON", L"STOP", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 200, 450, 100, 30, hwnd, (HMENU)IDC_STARTBTN, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
         SetThreadPriority(hBtn, THREAD_PRIORITY_HIGHEST);
 
         WndMainDefrag = true;
@@ -20,12 +23,13 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
     }
 
     case WM_DESTROY:
+        StopDefrager(hDefragThread);
         DeleteCS();
         WndMainDefrag = false;
         break;
 
     case WM_TIMER: {
-        std::queue<DefragmentationLogItem*> log = getTestDefragmentationLogs();
+        std::queue<DefragmentationLogItem*> log = getDefragmentationLogs();
         int size = log.size();
         if (log.size() > 0) {
             for (int i = 0; i < size; i++) {
@@ -65,4 +69,15 @@ void AppendTextToEditCtrl(HWND hWndEdit, LPCTSTR pszText)
     }
     SendMessage(hWndEdit, EM_SETSEL, (WPARAM)nLength, (LPARAM)nLength);
     SendMessage(hWndEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)pszText);
+}
+
+StartDefragInfo* GetStartDefragInfo(char drive) 
+{
+    StartDefragInfo* info = new StartDefragInfo();
+    char* dr = new char[7]{ "\\\\.\\C:" };
+    dr[4] = drive;
+    info->directory = drive;
+    info->drive = dr;
+    info->first = true;
+    return info;
 }
