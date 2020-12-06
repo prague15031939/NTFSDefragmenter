@@ -75,3 +75,10 @@ DEFRAGMENTERCORE_API void __cdecl DeleteCS();
 
 DEFRAGMENTERCORE_API void __cdecl StopDefrager(HANDLE hDefragThread);
 
+DEFRAGMENTERCORE_API std::queue<DefragmentationLogItem*> __cdecl getTestDefragmentationLogs();
+
+DEFRAGMENTERCORE_API DWORD WINAPI Defragmentation(LPVOID t);
+
+DEFRAGMENTERCORE_API void __cdecl InitCS();
+DEFRAGMENTERCORE_API void __cdecl DeleteCS();
+

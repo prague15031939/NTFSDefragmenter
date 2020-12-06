@@ -8,11 +8,28 @@ CRITICAL_SECTION criticalSection;
 bool isStopped = false;
 std::queue<DefragmentationLogItem*> DefragmentationLogs;
 
+std::queue<DefragmentationLogItem*> testLog;//
+
+const wchar_t* directories[10] = {
+            L"D:\\test1\\1.txt",
+            L"D:\\test1\\2.txt",
+            L"D:\\test1\\3.txt",
+            L"D:\\test2\\1.txt",
+            L"D:\\test2\\2.txt",
+            L"D:\\test2\\3.txt",
+            L"D:\\test3\\1.txt",
+            L"D:\\test3\\2.txt",
+            L"D:\\test3\\3.txt",
+            L"D:\\test3\\4.txt",
+};
+
 int Defrag(CString directory, CString dr, bool first = false);
 VOLUME_BITMAP_BUFFER* readVolumeBitmap(LPCWSTR drive);
 RETRIEVAL_POINTERS_BUFFER* readFileBitmap(std::wstring fileName);
 int Move(LPCWSTR lpSrcName, LPCWSTR drive);
 void createLog(const wchar_t* res, ATL::CString fullName);
+
+void createTestLog();//
 
 DWORD WINAPI WorkIn(LPVOID t) {
     isStopped = false;
@@ -417,7 +434,7 @@ std::queue<DefragmentationLogItem*> __cdecl getDefragmentationLogs()
 
 void createLog(const wchar_t* res, ATL::CString fullName)
 {
-    if (TryEnterCriticalSection(&criticalSection)) {
+    
         DefragmentationLogItem* item = new DefragmentationLogItem();
         ZeroMemory(item, sizeof(item));
 
@@ -430,7 +447,8 @@ void createLog(const wchar_t* res, ATL::CString fullName)
         wss.str().copy(item->fullName, fullName.GetLength(), 0);
         wss.str(std::wstring());
 
-        DefragmentationLogs.push(item);
+        if (TryEnterCriticalSection(&criticalSection)) {
+            DefragmentationLogs.push(item);
         LeaveCriticalSection(&criticalSection);
     }
 }
@@ -446,4 +464,57 @@ void __cdecl DeleteCS() {
 void __cdecl StopDefrager(HANDLE hDefragThread) {
     isStopped = true;
     WaitForSingleObject(hDefragThread, INFINITE);
+}
+
+
+std::queue<DefragmentationLogItem*> __cdecl getTestDefragmentationLogs()
+{
+    std::queue<DefragmentationLogItem*> testLog_ret;
+    if (TryEnterCriticalSection(&criticalSection)) {
+        int size = testLog.size();
+        for (int i = 0; i < size; i++) {
+            testLog_ret.push(testLog.front());
+            testLog.pop();
+        }
+        LeaveCriticalSection(&criticalSection);
+    }
+    return testLog_ret;
+
+}
+
+DWORD WINAPI Defragmentation(LPVOID t) {
+    isStopped = false;
+    SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
+    createTestLog();
+    SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
+    return 0;
+}
+
+void createTestLog()
+{
+   
+    int j = 0;
+    while(!isStopped && j<100 ) {
+        if (TryEnterCriticalSection(&criticalSection)) {
+
+            for (int i = 0; i < 10; i++) {
+                DefragmentationLogItem* item = new DefragmentationLogItem();
+                ZeroMemory(item, sizeof(item));
+
+                std::wostringstream wss;
+                wss << "=";
+                wss.str().copy(item->result, 5, 0);
+                wss.str(std::wstring());
+
+                wss << directories[i];
+                wss.str().copy(item->fullName, 200, 0);
+                wss.str(std::wstring());
+
+                testLog.push(item);
+            }
+            LeaveCriticalSection(&criticalSection);
+            j++;
+        }
+        //Sleep(100);
+    }
 }
