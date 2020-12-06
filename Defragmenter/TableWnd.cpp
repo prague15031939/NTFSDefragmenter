@@ -89,7 +89,7 @@ LRESULT CALLBACK WNDProc_Table(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
                 MapWindowPoints(HWND_DESKTOP, GetParent(hwnd), (LPPOINT)&Rect, 2);
                POINT pt = {};
                GetCursorPos(&pt);
-               int ItemIndex = (pt.y-335)/25;
+               int ItemIndex = (pt.y-Rect.top-125)/25;
                if (ItemIndex > -1 && ItemIndex < Drives.size()) {
                 if (!WndMainSelected) {
                   if (pressed > 1) {
@@ -100,18 +100,7 @@ LRESULT CALLBACK WNDProc_Table(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
                    else
                 pressed++;
                }
-
-                    /*int ItemIndex = SendMessage(hListView, LVM_GETNEXTITEM, -1, LVIS_SELECTED);
-                    
-                    if (ItemIndex > -1 && ItemIndex < Drives.size()) {
-                        if (!WndMainSelected) {
-                            currDrive = Drives[ItemIndex];
-                            RegisterWindowClass(WndClassSelected, hwndSelected, hInstance, nShow, L"WCSelected", L"Selected Drive", isRegSelectedWnd, (WNDPROC)WNDProc_Selected, 200, 200, 350, 320);
-                            SetWindowPos(hwndSelected, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-                        }
-                        
-                    }*/
-                }
+               }
                 
             }
         }

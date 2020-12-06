@@ -38,8 +38,13 @@ LRESULT CALLBACK WNDProc_Main(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
     case WM_COMMAND:
         switch LOWORD(wParam) {
         case (int)IDC_STARTBTN:
-            DestroyWindow(hWndMain);
-            RegisterWindowClass(WndClassTable, hwndTable, hInstance, nShow, L"WCTable", L"Available drives", isRegTableWnd, (WNDPROC)WNDProc_Table, 200,210,1000,500);
+            if (isUserAdmin()) {
+                RegisterWindowClass(WndClassTable, hwndTable, hInstance, nShow, L"WCTable", L"Available drives", isRegTableWnd, (WNDPROC)WNDProc_Table, 200, 210, 1000, 500);
+                DestroyWindow(hwnd);
+            }
+                
+            else
+                MessageBox(hwnd,L"You are not admin, start defrager as admin",NULL,NULL);
             break;
         }
     }

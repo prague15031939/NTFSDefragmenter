@@ -4,8 +4,9 @@ HWND hEdit;
 HWND hBtn;
 HWND hlstHead;
 HANDLE hDefragThread;
+const wchar_t* concatenation = L"";
 
-void AppendTextToEditCtrl(HWND hWndEdit, LPCTSTR pszText,bool clear=false);
+void AppendTextToEditCtrl(HWND hWndEdit, std::queue<DefragmentationLogItem*>& log);
 StartDefragInfo* GetStartDefragInfo(char drive = 'E');
 const wchar_t* SwitchDefragStatus(wchar_t result[2]);
 HWND CreateListView(HWND parent);
@@ -21,7 +22,7 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
         hDefragThread = CreateThread(NULL, 0, WorkIn, GetStartDefragInfo(c), 0, NULL);*/
         SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
         hDefragThread = CreateThread(NULL, 0, Defragmentation, NULL, 0, NULL);
-        SetTimer(hwnd, 1, 40, NULL);
+        SetTimer(hwnd, 1, 400, NULL);
         hEdit = CreateWindowEx(0, L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, 12, 45, 572, 500, hwnd, (HMENU)IDC_DEFRAGOUTPUT, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), NULL);
         
         hBtn = CreateWindow(L"BUTTON", L"STOP", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 200, 560, 130, 50, hwnd, (HMENU)IDC_STARTBTN, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
@@ -61,15 +62,9 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
         int size = log.size();
         if (log.size() > 0) {
             for (int i = 0; i < size; i++) {
-                DefragmentationLogItem* item = log.front();
-                log.pop();
-                AppendTextToEditCtrl(hEdit, L"\r\n");
-                AppendTextToEditCtrl(hEdit, SwitchDefragStatus(item->result));
-                AppendTextToEditCtrl(hEdit, L"              ");
-                AppendTextToEditCtrl(hEdit, item->fullName);
-                AppendTextToEditCtrl(hEdit, L"",true);
-                delete item;
+                AppendTextToEditCtrl(hEdit, log);
             }
+            
         }
         
         DWORD dwThreadID = GetWindowThreadProcessId(hBtn, NULL);
@@ -83,7 +78,6 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
     case WM_COMMAND:
         switch LOWORD(wParam) {
         case (int)IDC_STARTBTN:
-            //MessageBox(hwnd, L"Hello", NULL, NULL);
             StopDefrager(hDefragThread);
             break;
         }
@@ -92,14 +86,25 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
     return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-void AppendTextToEditCtrl(HWND hWndEdit, LPCTSTR pszText, bool clear)
+
+void AppendTextToEditCtrl(HWND hWndEdit, std::queue<DefragmentationLogItem*>& log)
 {
+    int size = log.size();
+    std::wstring s(L"\r\n");
+        DefragmentationLogItem* item = log.front();
+        log.pop();
+        s += std::wstring(SwitchDefragStatus(item->result));
+        s += std::wstring(L"              ");
+        s += std::wstring(item->fullName);
+        s += std::wstring(L"\r\n");
+        delete item;
+    concatenation = s.c_str();
     int nLength = GetWindowTextLength(hWndEdit);
-    if (nLength > 10000 && clear) {
+    if (nLength > 10000) {
         SetWindowText(hWndEdit, L"");
     }
     SendMessage(hWndEdit, EM_SETSEL, (WPARAM)nLength, (LPARAM)nLength);
-    SendMessage(hWndEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)pszText);
+    SendMessage(hWndEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)concatenation);
 }
 
 StartDefragInfo* GetStartDefragInfo(char drive) 

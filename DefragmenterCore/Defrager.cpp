@@ -515,6 +515,5 @@ void createTestLog()
             LeaveCriticalSection(&criticalSection);
             j++;
         }
-        //Sleep(100);
     }
 }

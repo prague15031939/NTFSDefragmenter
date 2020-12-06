@@ -49,8 +49,6 @@ DEFRAGMENTERCORE_API DriveInfo* __cdecl getDriveInfo(char& drive);
 
 // -------------------------------- admin section --------------------------------
 
-DEFRAGMENTERCORE_API BOOL __cdecl isUserAdmin();
-
 // -------------------------------- defrager section -----------------------------
 
 struct DefragmentationLogItem
@@ -81,4 +79,5 @@ DEFRAGMENTERCORE_API DWORD WINAPI Defragmentation(LPVOID t);
 
 DEFRAGMENTERCORE_API void __cdecl InitCS();
 DEFRAGMENTERCORE_API void __cdecl DeleteCS();
+DEFRAGMENTERCORE_API bool __cdecl isUserAdmin();
 

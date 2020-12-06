@@ -1,7 +1,8 @@
 #include "pch.h"
+#include "Core.h"
 #include <windows.h>
 
-BOOL __cdecl isUserAdmin()
+bool __cdecl isUserAdmin()
 {
 	BOOL flag;
 	SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
