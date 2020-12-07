@@ -7,32 +7,18 @@
 CRITICAL_SECTION criticalSection;
 bool isStopped = false;
 std::queue<DefragmentationLogItem*> DefragmentationLogs;
-
-std::queue<DefragmentationLogItem*> testLog;//
-
-const wchar_t* directories[10] = {
-            L"D:\\test1\\1.txt",
-            L"D:\\test1\\2.txt",
-            L"D:\\test1\\3.txt",
-            L"D:\\test2\\1.txt",
-            L"D:\\test2\\2.txt",
-            L"D:\\test2\\3.txt",
-            L"D:\\test3\\1.txt",
-            L"D:\\test3\\2.txt",
-            L"D:\\test3\\3.txt",
-            L"D:\\test3\\4.txt",
-};
+DefragmentationStats statistics;
 
 int Defrag(CString directory, CString dr, bool first = false);
 VOLUME_BITMAP_BUFFER* readVolumeBitmap(LPCWSTR drive);
 RETRIEVAL_POINTERS_BUFFER* readFileBitmap(std::wstring fileName);
 int Move(LPCWSTR lpSrcName, LPCWSTR drive);
 void createLog(const wchar_t* res, ATL::CString fullName);
-
-void createTestLog();//
+void createStat(std::wstring res);
 
 DWORD WINAPI WorkIn(LPVOID t) {
     isStopped = false;
+    ZeroMemory(&statistics, sizeof(statistics));
     StartDefragInfo* info = (StartDefragInfo*)t;
     return Defrag(info->directory, info->drive, info->first);
 }
@@ -72,14 +58,14 @@ int Defrag(CString directory, CString dr, bool first)
                         // если файл не разбил на части, то выводим +
                         if (fileBitmap->ExtentCount == 1)
                         {
-                            createLog(L"+", full_file_name);
+                            createLog(L"=", full_file_name);
                         }
                         else
                         {
                             // если разбит, то выполняем его дефрагментацию
                             // если дефрагментация удалась, то выводим = иначе -
                             res = Move(full_file_name.GetString(), dr.GetString());
-                            createLog((!res) ? L"=" : L"-", full_file_name);
+                            createLog((!res) ? L"+" : L"-", full_file_name);
                         }
                     }
                     free(fileBitmap);
@@ -434,23 +420,32 @@ std::queue<DefragmentationLogItem*> __cdecl getDefragmentationLogs()
 
 void createLog(const wchar_t* res, ATL::CString fullName)
 {
-    
-        DefragmentationLogItem* item = new DefragmentationLogItem();
+    DefragmentationLogItem* item = new DefragmentationLogItem();
+    if (TryEnterCriticalSection(&criticalSection)) {
         ZeroMemory(item, sizeof(item));
 
         std::wostringstream wss;
         wss << res;
         wss.str().copy(item->result, 1, 0);
+        createStat(wss.str());
         wss.str(std::wstring());
 
         wss << fullName.GetString();
         wss.str().copy(item->fullName, fullName.GetLength(), 0);
         wss.str(std::wstring());
 
-        if (TryEnterCriticalSection(&criticalSection)) {
-            DefragmentationLogs.push(item);
+        DefragmentationLogs.push(item);
         LeaveCriticalSection(&criticalSection);
     }
+}
+
+void createStat(std::wstring res) {
+    if (res == L"=")
+        statistics.filesNotTouched++;
+    else if (res == L"+")
+        statistics.filesDefragmented++;
+    else if (res == L"-")
+        statistics.filesErrorDefragmented++;
 }
 
 void __cdecl InitCS() {
@@ -466,6 +461,28 @@ void __cdecl StopDefrager(HANDLE hDefragThread) {
     WaitForSingleObject(hDefragThread, INFINITE);
 }
 
+DefragmentationStats __cdecl getDefragmentationStats() {
+    DefragmentationStats result = statistics;
+    return result;
+}
+
+// ---------------------------- test section --------------------------------------
+
+void createTestLog();
+std::queue<DefragmentationLogItem*> testLog;
+
+const wchar_t* directories[10] = {
+            L"D:\\test1\\1.txt",
+            L"D:\\test1\\2.txt",
+            L"D:\\test1\\3.txt",
+            L"D:\\test2\\1.txt",
+            L"D:\\test2\\2.txt",
+            L"D:\\test2\\3.txt",
+            L"D:\\test3\\1.txt",
+            L"D:\\test3\\2.txt",
+            L"D:\\test3\\3.txt",
+            L"D:\\test3\\4.txt",
+};
 
 std::queue<DefragmentationLogItem*> __cdecl getTestDefragmentationLogs()
 {
@@ -492,9 +509,8 @@ DWORD WINAPI Defragmentation(LPVOID t) {
 
 void createTestLog()
 {
-   
     int j = 0;
-    while(!isStopped && j<100 ) {
+    while (!isStopped && j < 100) {
         if (TryEnterCriticalSection(&criticalSection)) {
 
             for (int i = 0; i < 10; i++) {

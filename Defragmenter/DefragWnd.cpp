@@ -18,11 +18,11 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
     switch (message) {
     case WM_CREATE: {
         InitCS();
-        /*char c = currDrive->Drive[0];
-        hDefragThread = CreateThread(NULL, 0, WorkIn, GetStartDefragInfo(c), 0, NULL);*/
-        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
-        hDefragThread = CreateThread(NULL, 0, Defragmentation, NULL, 0, NULL);
-        SetTimer(hwnd, 1, 400, NULL);
+        char c = currDrive->Drive[0];
+        hDefragThread = CreateThread(NULL, 0, WorkIn, GetStartDefragInfo(c), 0, NULL);
+        //SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+        //hDefragThread = CreateThread(NULL, 0, Defragmentation, NULL, 0, NULL);
+        SetTimer(hwnd, 1, 200, NULL);
         hEdit = CreateWindowEx(0, L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, 12, 45, 572, 500, hwnd, (HMENU)IDC_DEFRAGOUTPUT, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), NULL);
         
         hBtn = CreateWindow(L"BUTTON", L"STOP", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 200, 560, 130, 50, hwnd, (HMENU)IDC_STARTBTN, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
@@ -52,19 +52,18 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
     case WM_DESTROY:
         StopDefrager(hDefragThread);
         DeleteCS();
+        DefragmentationStats stats = getDefragmentationStats();
         WndMainDefrag = false;
         break;
 
         
     case WM_TIMER: {
-        //std::queue<DefragmentationLogItem*> log = getDefragmentationLogs();
-        std::queue<DefragmentationLogItem*> log = getTestDefragmentationLogs();
+        std::queue<DefragmentationLogItem*> log = getDefragmentationLogs();
         int size = log.size();
         if (log.size() > 0) {
             for (int i = 0; i < size; i++) {
                 AppendTextToEditCtrl(hEdit, log);
-            }
-            
+            }    
         }
         
         DWORD dwThreadID = GetWindowThreadProcessId(hBtn, NULL);
@@ -78,7 +77,7 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
     case WM_COMMAND:
         switch LOWORD(wParam) {
         case (int)IDC_STARTBTN:
-            StopDefrager(hDefragThread);
+            DestroyWindow(hwnd);
             break;
         }
         break;
@@ -119,11 +118,11 @@ StartDefragInfo* GetStartDefragInfo(char drive)
 }
 
 const wchar_t* SwitchDefragStatus(wchar_t result[2]) {
-    if (!wcscmp(result, L"="))
+    if (!wcscmp(result, L"+"))
         return L"Defragmented";
     if (!wcscmp(result, L"-"))
         return L"Error       ";
-    if (!wcscmp(result, L"+"))
+    if (!wcscmp(result, L"="))
         return L"Clear       ";
 }
 

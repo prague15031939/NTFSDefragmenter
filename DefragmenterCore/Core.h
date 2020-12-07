@@ -49,6 +49,8 @@ DEFRAGMENTERCORE_API DriveInfo* __cdecl getDriveInfo(char& drive);
 
 // -------------------------------- admin section --------------------------------
 
+DEFRAGMENTERCORE_API bool __cdecl isUserAdmin();
+
 // -------------------------------- defrager section -----------------------------
 
 struct DefragmentationLogItem
@@ -57,10 +59,18 @@ struct DefragmentationLogItem
 	wchar_t fullName[4096];
 };
 
-struct StartDefragInfo {
+struct StartDefragInfo 
+{
 	CString directory;
 	CString drive;
 	bool first = false; // true for root directory (like c or d)
+};
+
+struct DefragmentationStats 
+{
+	unsigned long filesNotTouched;
+	unsigned long filesDefragmented;
+	unsigned long filesErrorDefragmented;
 };
 
 DEFRAGMENTERCORE_API DWORD WINAPI WorkIn(LPVOID t); // t must be of type StartDefragInfo
@@ -73,11 +83,11 @@ DEFRAGMENTERCORE_API void __cdecl DeleteCS();
 
 DEFRAGMENTERCORE_API void __cdecl StopDefrager(HANDLE hDefragThread);
 
+DEFRAGMENTERCORE_API DefragmentationStats __cdecl getDefragmentationStats();
+
+// ------------------------------- test section ----------------------------------
+
 DEFRAGMENTERCORE_API std::queue<DefragmentationLogItem*> __cdecl getTestDefragmentationLogs();
 
 DEFRAGMENTERCORE_API DWORD WINAPI Defragmentation(LPVOID t);
-
-DEFRAGMENTERCORE_API void __cdecl InitCS();
-DEFRAGMENTERCORE_API void __cdecl DeleteCS();
-DEFRAGMENTERCORE_API bool __cdecl isUserAdmin();
 
