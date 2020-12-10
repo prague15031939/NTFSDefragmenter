@@ -421,7 +421,7 @@ std::queue<DefragmentationLogItem*> __cdecl getDefragmentationLogs()
 void createLog(const wchar_t* res, ATL::CString fullName)
 {
     DefragmentationLogItem* item = new DefragmentationLogItem();
-    if (TryEnterCriticalSection(&criticalSection)) {
+    if (TryEnterCriticalSection(&criticalSection)) { 
         ZeroMemory(item, sizeof(item));
 
         std::wostringstream wss;
