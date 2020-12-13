@@ -20,8 +20,6 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
         InitCS();
         char c = currDrive->Drive[0];
         hDefragThread = CreateThread(NULL, 0, WorkIn, GetStartDefragInfo(c), 0, NULL);
-        //SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
-        //hDefragThread = CreateThread(NULL, 0, Defragmentation, NULL, 0, NULL);
         SetTimer(hwnd, 1, 200, NULL);
         hEdit = CreateWindowEx(0, L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, 12, 45, 572, 500, hwnd, (HMENU)IDC_DEFRAGOUTPUT, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), NULL);
         
@@ -56,7 +54,6 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
         WndMainDefrag = false;
         break;
 
-        
     case WM_TIMER: {
         std::queue<DefragmentationLogItem*> log = getDefragmentationLogs();
         int size = log.size();
