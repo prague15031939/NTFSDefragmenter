@@ -482,10 +482,10 @@ DWORD WINAPI Defragmentation(LPVOID t) {
 void createTestLog()
 {
     int j = 0;
-    while (!isStopped && j < 100) {
+    while (!isStopped && j < 3) {
         if (TryEnterCriticalSection(&criticalSection)) {
 
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 3; i++) {
                 DefragmentationLogItem* item = new DefragmentationLogItem();
                 ZeroMemory(item, sizeof(item));
 

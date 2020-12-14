@@ -1,7 +1,7 @@
 ﻿#include "Defragmenter.h"
 
-bool WndMainOpen, WndMainTable, WndMainInfo, WndMainDefrag, WndMainSelected = false;
-bool isRegMainWnd, isRegTableWnd, isRegInfoWnd, isRegDefragWnd, isRegSelectedWnd = false;
+bool WndMainOpen, WndMainTable, WndMainInfo, WndMainDefrag, WndMainSelected, WndMainStats = false;
+bool isRegMainWnd, isRegTableWnd, isRegInfoWnd, isRegDefragWnd, isRegSelectedWnd, isRegStatsWnd = false;
 int nShow = 0;
 HINSTANCE hInstance = NULL;
 HWND hwndTable = NULL;
@@ -9,6 +9,7 @@ HWND hwndInfo = NULL;
 HWND hwndDefrag = NULL;
 HWND hWndMain = NULL;
 HWND hwndSelected = NULL;
+HWND hwndStats = NULL;
 
 DriveData* currDrive = {};
 
@@ -17,6 +18,7 @@ WNDCLASSEX WndClassTable = {};
 WNDCLASSEX WndClassInfo = {};
 WNDCLASSEX WndClassDefrag = {};
 WNDCLASSEX WndClassSelected = {};
+WNDCLASSEX WndClassStats = {};
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShowCmd)
 {
