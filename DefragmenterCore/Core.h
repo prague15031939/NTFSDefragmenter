@@ -56,7 +56,7 @@ DEFRAGMENTERCORE_API bool __cdecl isUserAdmin();
 struct DefragmentationLogItem
 {
 	wchar_t result[2];
-	wchar_t fullName[4096];
+	wchar_t fullName[260];
 };
 
 struct StartDefragInfo 

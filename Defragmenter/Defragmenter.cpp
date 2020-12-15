@@ -71,7 +71,7 @@ void RegisterWindowClass(WNDCLASSEX& wc, HWND& hwnd, HINSTANCE hInst, int nShowC
     hwnd = CreateWindowEx(NULL,
         wc.lpszClassName,
         windowTitle,
-        WS_OVERLAPPEDWINDOW,
+        WS_DLGFRAME | WS_SYSMENU |WS_MINIMIZEBOX|WS_MAXIMIZE,
         x, y, w, h,
         NULL,
         NULL,

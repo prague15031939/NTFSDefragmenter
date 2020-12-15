@@ -444,7 +444,7 @@ void createTestLog();
 std::queue<DefragmentationLogItem*> testLog;
 
 const wchar_t* directories[10] = {
-            L"D:\\test1\\1.txt",
+            L"D:\\test1\\1.txt\\aaaaaaaaaaaaaaaa\\aaaaaaaaaaaaaaaaaaaaa\\aaaaaaaaaaaaa\\aaaaaaaaaaaaaaaa\\aaaaaaaaa",
             L"D:\\test1\\2.txt",
             L"D:\\test1\\3.txt",
             L"D:\\test2\\1.txt",
@@ -495,7 +495,7 @@ void createTestLog()
                 wss.str(std::wstring());
 
                 wss << directories[i];
-                wss.str().copy(item->fullName, 200, 0);
+                wss.str().copy(item->fullName, 260, 0);
                 wss.str(std::wstring());
 
                 testLog.push(item);

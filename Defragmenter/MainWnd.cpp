@@ -7,7 +7,7 @@ LRESULT CALLBACK WNDProc_Main(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
     switch (message) {
     case WM_CREATE: {
         WndMainOpen = true;
-        HWND hLabel = CreateWindow(L"static", L"StartLBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 20, 0, 200, 60, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
+        HWND hLabel = CreateWindow(L"static", L"StartLBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 50, 0, 200, 60, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
         GetObject(GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf);
         hFont = CreateFont(30, lf.lfWidth,
             lf.lfEscapement, lf.lfOrientation, 700,
@@ -16,7 +16,7 @@ LRESULT CALLBACK WNDProc_Main(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
             lf.lfPitchAndFamily, lf.lfFaceName);
         SendMessage(hLabel, WM_SETFONT, (WPARAM)hFont, TRUE);
         SetWindowText(hLabel, L"Welcome to defragmenter");
-        HWND hBtn = CreateWindow(L"BUTTON", L"START", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 50, 220, 150, 50, hwnd, (HMENU)IDC_STARTBTN, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
+        HWND hBtn = CreateWindow(L"BUTTON", L"START", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 70, 220, 150, 50, hwnd, (HMENU)IDC_STARTBTN, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
         SendMessage(hBtn, WM_SETFONT, (WPARAM)hFont, TRUE);
         }
         break;
@@ -39,7 +39,7 @@ LRESULT CALLBACK WNDProc_Main(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);   
-        HBITMAP imageBmp = (HBITMAP)LoadImageA(NULL,(LPCSTR)".\\defragicon.bmp",IMAGE_BITMAP,0, 0,LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        HBITMAP imageBmp = (HBITMAP)LoadImageA(NULL,(LPCSTR)"defragicon.bmp",IMAGE_BITMAP,0, 0,LR_DEFAULTSIZE | LR_LOADFROMFILE);
         HDC imageDC = CreateCompatibleDC(NULL);
         SelectObject(imageDC, imageBmp);
         BitBlt(hdc,0, 60,300,400,imageDC,0, 0,SRCCOPY);

@@ -9,6 +9,7 @@ const wchar_t* concatenation = L"";
 void AppendTextToEditCtrl(HWND hWndEdit, std::queue<DefragmentationLogItem*>& log);
 StartDefragInfo* GetStartDefragInfo(char drive = 'E');
 const wchar_t* SwitchDefragStatus(wchar_t result[2]);
+std::wstring ShowFileName(wchar_t fullname[260]);
 HWND CreateListView(HWND parent);
 
 LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -62,12 +63,6 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
                 AppendTextToEditCtrl(hEdit, log);
             }    
         }
-        
-        DWORD dwThreadID = GetWindowThreadProcessId(hBtn, NULL);
-        DWORD dwThisThreadID = GetWindowThreadProcessId(hEdit, NULL);
-        AttachThreadInput(dwThisThreadID, dwThreadID, TRUE);
-        SetFocus(hBtn);
-        AttachThreadInput(dwThisThreadID, dwThreadID, FALSE);
 
         break;
     }
@@ -90,7 +85,7 @@ void AppendTextToEditCtrl(HWND hWndEdit, std::queue<DefragmentationLogItem*>& lo
         DefragmentationLogItem* item = log.front();
         log.pop();
         s += std::wstring(SwitchDefragStatus(item->result));
-        s += std::wstring(L"              ");
+        s += std::wstring(L"                 ");
         s += std::wstring(item->fullName);
         s += std::wstring(L"\r\n");
         delete item;
@@ -101,6 +96,18 @@ void AppendTextToEditCtrl(HWND hWndEdit, std::queue<DefragmentationLogItem*>& lo
     }
     SendMessage(hWndEdit, EM_SETSEL, (WPARAM)nLength, (LPARAM)nLength);
     SendMessage(hWndEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)concatenation);
+}
+
+std::wstring ShowFileName(wchar_t fullname[260]) {
+    std::wstring name(fullname);
+    std::wstring s(L"");
+    int len = wcslen(fullname);
+    int n = len / 60;
+    for (int i = 0; i <= n; i++) {
+        s += std::wstring(name,i*60,(i+1)*60-1);
+        s+=std::wstring(L"                                      ");
+    }
+    return s;
 }
 
 StartDefragInfo* GetStartDefragInfo(char drive) 

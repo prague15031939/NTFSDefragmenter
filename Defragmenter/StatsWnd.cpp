@@ -33,6 +33,10 @@ LRESULT CALLBACK WNDProc_Stats(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 
     case WM_PAINT:
     {
+        PAINTSTRUCT ps;
+        RECT rc_rect;
+        RECT rc_text;
+
         double radius = 150;
         int x0 = 200;
         int y0 = 80;
@@ -40,16 +44,14 @@ LRESULT CALLBACK WNDProc_Stats(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
         int y1 = 80;
         int cx = 50 + radius;
         int cy = 80 + radius;
-        PAINTSTRUCT ps;
-        RECT rc_rect;
-        RECT rc_text;
+        
 
         rc_rect.top = 80;
         rc_rect.left = 400;
         rc_rect.bottom = 120;
         rc_rect.right = 440;
 
-        rc_text.top = 80;
+        rc_text.top = 90;
         rc_text.left = 445;
         rc_text.bottom = 120;
         rc_text.right = 650;
@@ -65,7 +67,7 @@ LRESULT CALLBACK WNDProc_Stats(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
             DrawPie(hdc, radius, cx, cy, x0, y0, x1, y1, TransformStatToAngle(stats.filesNotTouched, stats));
             FillRect(hdc, &rc_rect, CreateSolidBrush(RGB(0, 0, 255)));
             SetBkMode(hdc, TRANSPARENT);
-            DrawText(hdc, TEXT("Files Not Touched"), lstrlen(TEXT("Files Not Touched")), &rc_text, DT_CENTER);
+            DrawText(hdc, TEXT("Files Not Touched"), lstrlen(TEXT("Files Not Touched")), &rc_text, NULL);
 
             SelectObject(hdc, CreateSolidBrush(RGB(0, 255, 0)));
             DrawPie(hdc, radius, cx, cy, x0, y0, x1, y1, TransformStatToAngle(stats.filesDefragmented, stats) + TransformStatToAngle(stats.filesNotTouched, stats));
@@ -73,7 +75,7 @@ LRESULT CALLBACK WNDProc_Stats(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
             FillRect(hdc, &rc_rect, CreateSolidBrush(RGB(0, 255, 0)));
             SetBkMode(hdc, TRANSPARENT);
             MoveRect(&rc_text, 80);
-            DrawText(hdc, TEXT("Files Defragmented"), lstrlen(TEXT("Files Defragmented")), &rc_text, DT_CENTER);
+            DrawText(hdc, TEXT("Files Defragmented"), lstrlen(TEXT("Files Defragmented")), &rc_text, NULL);
 
             SelectObject(hdc, CreateSolidBrush(RGB(255, 0, 0)));
             DrawPie(hdc, radius, cx, cy, x0, y0, x1, y1, TransformStatToAngle(stats.filesErrorDefragmented, stats) + TransformStatToAngle(stats.filesDefragmented, stats) + TransformStatToAngle(stats.filesNotTouched, stats) + 1);
@@ -81,7 +83,7 @@ LRESULT CALLBACK WNDProc_Stats(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
             FillRect(hdc, &rc_rect, CreateSolidBrush(RGB(255, 0, 0)));
             SetBkMode(hdc, TRANSPARENT);
             MoveRect(&rc_text, 80);
-            DrawText(hdc, TEXT("Files Error Defragmented"), lstrlen(TEXT("Files Error Defragmented")), &rc_text, DT_CENTER);
+            DrawText(hdc, TEXT("Files Error Defragmented"), lstrlen(TEXT("Files Error Defragmented")), &rc_text, NULL);
 
 
             SelectObject(hdc, hpenOld);

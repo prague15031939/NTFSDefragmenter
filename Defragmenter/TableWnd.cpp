@@ -89,7 +89,7 @@ LRESULT CALLBACK WNDProc_Table(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
                 MapWindowPoints(HWND_DESKTOP, GetParent(hwnd), (LPPOINT)&Rect, 2);
                POINT pt = {};
                GetCursorPos(&pt);
-               int ItemIndex = (pt.y-Rect.top-125)/25;
+               int ItemIndex = (pt.y-Rect.top-105)/25;
                if (ItemIndex > -1 && ItemIndex < Drives.size()) {
                 if (!WndMainSelected) {
                   if (pressed > 1) {
