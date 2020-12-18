@@ -13,9 +13,6 @@ LRESULT CALLBACK WNDProc_Stats(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
     case WM_CREATE: {
         WndMainStats = true;
         stats = getDefragmentationStats();
-        stats.filesDefragmented = 10;
-        stats.filesErrorDefragmented = 1; //Test DataSet
-        stats.filesNotTouched = 200;
         HWND hLabel = CreateWindow(L"static", L"StartLBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 20, 20, 200, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
         GetObject(GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf);
         hFont = CreateFont(30, lf.lfWidth,
@@ -26,7 +23,7 @@ LRESULT CALLBACK WNDProc_Stats(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
         SendMessage(hLabel, WM_SETFONT, (WPARAM)hFont, TRUE);
         SetWindowText(hLabel, L"Disk Statistics");
     }
-                  break;
+    break;
     case WM_DESTROY:
         WndMainStats = false;
         break;
@@ -44,7 +41,7 @@ LRESULT CALLBACK WNDProc_Stats(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
         int y1 = 80;
         int cx = 50 + radius;
         int cy = 80 + radius;
-        
+
 
         rc_rect.top = 80;
         rc_rect.left = 400;
@@ -63,22 +60,25 @@ LRESULT CALLBACK WNDProc_Stats(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
             HPEN hpenOld = static_cast<HPEN>(SelectObject(hdc, GetStockObject(DC_PEN)));
             HBRUSH hbrushOld = static_cast<HBRUSH>(SelectObject(hdc, GetStockObject(NULL_BRUSH)));
 
-            SelectObject(hdc, CreateSolidBrush(RGB(0, 0, 255)));
-            DrawPie(hdc, radius, cx, cy, x0, y0, x1, y1, TransformStatToAngle(stats.filesNotTouched, stats));
-            FillRect(hdc, &rc_rect, CreateSolidBrush(RGB(0, 0, 255)));
+            SelectObject(hdc, CreateSolidBrush(RGB(0, 255, 0)));
+            if (stats.filesNotTouched != 0)
+                DrawPie(hdc, radius, cx, cy, x0, y0, x1, y1, TransformStatToAngle(stats.filesNotTouched, stats));
+            FillRect(hdc, &rc_rect, CreateSolidBrush(RGB(0, 255, 0)));
             SetBkMode(hdc, TRANSPARENT);
             DrawText(hdc, TEXT("Files Not Touched"), lstrlen(TEXT("Files Not Touched")), &rc_text, NULL);
 
-            SelectObject(hdc, CreateSolidBrush(RGB(0, 255, 0)));
-            DrawPie(hdc, radius, cx, cy, x0, y0, x1, y1, TransformStatToAngle(stats.filesDefragmented, stats) + TransformStatToAngle(stats.filesNotTouched, stats));
+            SelectObject(hdc, CreateSolidBrush(RGB(0, 0, 255)));
+            if (stats.filesDefragmented != 0)
+                DrawPie(hdc, radius, cx, cy, x0, y0, x1, y1, TransformStatToAngle(stats.filesDefragmented, stats) + TransformStatToAngle(stats.filesNotTouched, stats));
             MoveRect(&rc_rect, 80);
-            FillRect(hdc, &rc_rect, CreateSolidBrush(RGB(0, 255, 0)));
+            FillRect(hdc, &rc_rect, CreateSolidBrush(RGB(0, 0, 255)));
             SetBkMode(hdc, TRANSPARENT);
             MoveRect(&rc_text, 80);
             DrawText(hdc, TEXT("Files Defragmented"), lstrlen(TEXT("Files Defragmented")), &rc_text, NULL);
 
             SelectObject(hdc, CreateSolidBrush(RGB(255, 0, 0)));
-            DrawPie(hdc, radius, cx, cy, x0, y0, x1, y1, TransformStatToAngle(stats.filesErrorDefragmented, stats) + TransformStatToAngle(stats.filesDefragmented, stats) + TransformStatToAngle(stats.filesNotTouched, stats) + 1);
+            if (stats.filesErrorDefragmented != 0)
+                DrawPie(hdc, radius, cx, cy, x0, y0, x1, y1, TransformStatToAngle(stats.filesErrorDefragmented, stats) + TransformStatToAngle(stats.filesDefragmented, stats) + TransformStatToAngle(stats.filesNotTouched, stats) + 1);
             MoveRect(&rc_rect, 80);
             FillRect(hdc, &rc_rect, CreateSolidBrush(RGB(255, 0, 0)));
             SetBkMode(hdc, TRANSPARENT);
@@ -90,11 +90,10 @@ LRESULT CALLBACK WNDProc_Stats(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
             SelectObject(hdc, hbrushOld);
             EndPaint(hwnd, &ps);
         }
-        
+
     }
     }
     return DefWindowProc(hwnd, message, wParam, lParam);
-
 }
 
 void DrawPie(HDC hdc,double radius, int cx, int cy, int &x0, int &y0, int &x1, int &y1, double angle) {

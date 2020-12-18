@@ -41,7 +41,7 @@ LRESULT CALLBACK WNDProc_Info(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
         DriveInfo* driveInfo = getDriveInfo(c);
             for (int i = 0; i < 15; i++) {
                 HWND hLabel = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 20, 10 + i * 30, 400, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
-                HWND hText = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 350, 10 + i * 30, 100, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
+                HWND hText = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 350, 10 + i * 30, 150, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
                 SendMessage(hLabel, WM_SETFONT, (WPARAM)hFont1, TRUE);
                 SendMessage(hText, WM_SETFONT, (WPARAM)hFont2, TRUE);
                 SetWindowText(hLabel, headers[i]);

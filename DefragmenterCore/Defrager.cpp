@@ -495,7 +495,7 @@ void createTestLog()
                 wss.str(std::wstring());
 
                 wss << directories[i];
-                wss.str().copy(item->fullName, 260, 0);
+                wss.str().copy(item->fullName, 4096, 0);
                 wss.str(std::wstring());
 
                 testLog.push(item);

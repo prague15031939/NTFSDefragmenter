@@ -91,15 +91,15 @@ LRESULT CALLBACK WNDProc_Table(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
                GetCursorPos(&pt);
                int ItemIndex = (pt.y-Rect.top-105)/25;
                if (ItemIndex > -1 && ItemIndex < Drives.size()) {
-                if (!WndMainSelected) {
-                  if (pressed > 1) {
-                       currDrive = Drives[ItemIndex];
-                                    RegisterWindowClass(WndClassSelected, hwndSelected, hInstance, nShow, L"WCSelected", L"Selected Drive", isRegSelectedWnd, (WNDPROC)WNDProc_Selected, 200, 200, 350, 320);
-                                    SetWindowPos(hwndSelected, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-                  }
-                   else
-                pressed++;
-               }
+                   if (!WndMainSelected) {
+                       if (pressed > 1) {
+                           currDrive = Drives[ItemIndex];
+                           RegisterWindowClass(WndClassSelected, hwndSelected, hInstance, nShow, L"WCSelected", L"Selected Drive", isRegSelectedWnd, (WNDPROC)WNDProc_Selected, 200, 200, 370, 280);
+                           SetWindowPos(hwndSelected, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+                       }
+                       else
+                           pressed++;
+                   }
                }
                 
             }

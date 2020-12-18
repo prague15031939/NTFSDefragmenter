@@ -157,8 +157,9 @@
     <ResourceCompile Include="Defragmenter.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Defragmenter.ico" />
-    <Image Include="small.ico" />
+    <Image Include="defrag-background.bmp" />
+    <Image Include="defrag-icon.ico" />
+    <Image Include="small-defrag-icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DefragmenterCore\DefragmenterCore.vcxproj">

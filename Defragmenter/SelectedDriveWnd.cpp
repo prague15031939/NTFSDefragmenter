@@ -28,16 +28,16 @@ LRESULT CALLBACK WNDProc_Selected(HWND hwnd, UINT message, WPARAM wParam, LPARAM
             lf.lfOutPrecision, lf.lfClipPrecision, lf.lfQuality,
             lf.lfPitchAndFamily, lf.lfFaceName);
         HWND hLabel = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 20, 20, 400, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
-        HWND hInfoBtn = CreateWindowEx(NULL, L"BUTTON", L"Detail Info", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 5, 200, 150, 24, hwnd, (HMENU)IDC_INFOBTN, GetModuleHandle(NULL), NULL);
-        HWND hDefragBtn = CreateWindowEx(NULL, L"BUTTON", L"Defragment", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 170, 200, 150, 24, hwnd, (HMENU)IDC_DEFRAGBTN, GetModuleHandle(NULL), NULL);
+        HWND hInfoBtn = CreateWindowEx(NULL, L"BUTTON", L"Detail Info", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 20, 200, 150, 24, hwnd, (HMENU)IDC_INFOBTN, GetModuleHandle(NULL), NULL);
+        HWND hDefragBtn = CreateWindowEx(NULL, L"BUTTON", L"Defragment", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 190, 200, 150, 24, hwnd, (HMENU)IDC_DEFRAGBTN, GetModuleHandle(NULL), NULL);
         SendMessage(hLabel, WM_SETFONT, (WPARAM)hFont2, TRUE);
         SendMessage(hInfoBtn, WM_SETFONT, (WPARAM)hFont2, TRUE);
         SendMessage(hDefragBtn, WM_SETFONT, (WPARAM)hFont2, TRUE);
         SetWindowText(hLabel, L"Selected Drive");
 
         for (int i = 0; i < 6; i++) {
-            HWND hLabel = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 20, 10 + i * 30, 200, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
-            HWND hText = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 200, 10 + i * 30, 200, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
+            HWND hLabel = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 20, 10 + i * 30, 210, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
+            HWND hText = CreateWindow(L"static", L"LBL", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 200, 10 + i * 30, 210, 30, hwnd, (HMENU)IDC_STARTLBL, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
             SendMessage(hLabel, WM_SETFONT, (WPARAM)hFont1, TRUE);
             SendMessage(hText, WM_SETFONT, (WPARAM)hFont2, TRUE);
             SetWindowText(hLabel, sel_headers[i]);
@@ -53,7 +53,7 @@ LRESULT CALLBACK WNDProc_Selected(HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 char c = currDrive->Drive[0];
                 DriveInfo* driveInfo = getDriveInfo(c);
                 if (driveInfo!=NULL)
-                    RegisterWindowClass(WndClassInfo, hwndInfo, hInstance, nShow, L"WCInfo", L"Drive Info", isRegInfoWnd, (WNDPROC)WNDProc_Info, 300, 200, 500, 550);
+                    RegisterWindowClass(WndClassInfo, hwndInfo, hInstance, nShow, L"WCInfo", L"Drive Info", isRegInfoWnd, (WNDPROC)WNDProc_Info, 300, 200, 520, 500);
                 else
                     MessageBox(hwnd, L"Current drive is unavailable (or FAT32 System)", NULL, NULL);
                 break;

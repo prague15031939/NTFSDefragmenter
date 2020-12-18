@@ -5,6 +5,7 @@
 #define IDM_ABOUT				    104
 #define IDI_DEFRAGMENTER			107
 #define IDI_SMALL				    108
+#define IDR_BACKGROUND_IMAGE        126
 #define IDC_DEFRAGMENTER     		109
 #define IDC_MYICON				    2
 #ifndef IDC_STATIC

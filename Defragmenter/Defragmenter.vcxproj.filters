@@ -57,10 +57,13 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="small.ico">
+    <Image Include="small-defrag-icon.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Defragmenter.ico">
+    <Image Include="defrag-icon.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="defrag-background.bmp">
       <Filter>Файлы ресурсов</Filter>
     </Image>
   </ItemGroup>

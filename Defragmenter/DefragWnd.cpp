@@ -20,11 +20,11 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
     case WM_CREATE: {
         InitCS();
         char c = currDrive->Drive[0];
-        hDefragThread = CreateThread(NULL, 0, Defragmentation, GetStartDefragInfo(c), 0, NULL);
+        hDefragThread = CreateThread(NULL, 0, WorkIn, GetStartDefragInfo(c), 0, NULL);
         SetTimer(hwnd, 1, 200, NULL);
         hEdit = CreateWindowEx(0, L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, 12, 45, 572, 500, hwnd, (HMENU)IDC_DEFRAGOUTPUT, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), NULL);
         
-        hBtn = CreateWindow(L"BUTTON", L"STOP", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 200, 560, 130, 50, hwnd, (HMENU)IDC_STARTBTN, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
+        hBtn = CreateWindow(L"BUTTON", L"STOP", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 225, 580, 130, 50, hwnd, (HMENU)IDC_STARTBTN, (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE), NULL);
 
         hlstHead = CreateListView(hwnd);
 
@@ -56,7 +56,7 @@ LRESULT CALLBACK WNDProc_Defrag(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
         break;
 
     case WM_TIMER: {
-        std::queue<DefragmentationLogItem*> log = getTestDefragmentationLogs();
+        std::queue<DefragmentationLogItem*> log = getDefragmentationLogs();
         int size = log.size();
         if (log.size() > 0) {
             for (int i = 0; i < size; i++) {
@@ -86,7 +86,7 @@ void AppendTextToEditCtrl(HWND hWndEdit, std::queue<DefragmentationLogItem*>& lo
         log.pop();
         s += std::wstring(SwitchDefragStatus(item->result));
         s += std::wstring(L"                 ");
-        s += std::wstring(item->fullName);
+        s += std::wstring(ShowFileName(item->fullName));
         s += std::wstring(L"\r\n");
         delete item;
     concatenation = s.c_str();
@@ -98,16 +98,20 @@ void AppendTextToEditCtrl(HWND hWndEdit, std::queue<DefragmentationLogItem*>& lo
     SendMessage(hWndEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)concatenation);
 }
 
-std::wstring ShowFileName(wchar_t fullname[260]) {
+std::wstring ShowFileName(wchar_t fullname[4096]) {
     std::wstring name(fullname);
     std::wstring s(L"");
-    int len = wcslen(fullname);
-    int n = len / 60;
-    for (int i = 0; i <= n; i++) {
-        s += std::wstring(name,i*60,(i+1)*60-1);
-        s+=std::wstring(L"                                      ");
+    if (name.length() > 40) {
+        for (int i = name.length() - 1, j = 0; i > 0; i--, j++) {
+            s.push_back(name[i]);
+            if (name[i] == '\\' && j >= 40) {
+                s += L"...";
+                std::reverse(s.begin(), s.end());
+                return s;
+            }
+        }
     }
-    return s;
+    return name;
 }
 
 StartDefragInfo* GetStartDefragInfo(char drive) 
